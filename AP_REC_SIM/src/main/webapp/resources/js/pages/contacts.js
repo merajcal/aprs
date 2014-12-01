@@ -1,4 +1,6 @@
-function contactsController($scope, $http) {
+var aprsApp = angular.module("aprsApp",['ui.bootstrap']);
+aprsApp.controller('contactsController', function ($scope, $modal, $log, $http) {
+
     $scope.pageToGet = 0;
 
     $scope.state = 'busy';
@@ -88,13 +90,15 @@ function contactsController($scope, $http) {
         $scope.displayValidationError = false;
     }
 
-    $scope.finishAjaxCallOnSuccess = function (data, modalId, isPagination) {
+    $scope.finishAjaxCallOnSuccess = function (data, modalId, isPagination,$modalInstance) {
         $scope.populateTable(data);
-        $("#loadingModal").modal('hide');
+       // $("#loadingModal").modal('hide');
 
         if(!isPagination){
             if(modalId){
-                $scope.exit(modalId);
+                //$scope.exit(modalId);
+            	//$modalInstance.close();
+            	//$scope.ok();
             }
         }
 
@@ -103,13 +107,13 @@ function contactsController($scope, $http) {
 
     $scope.startDialogAjaxRequest = function () {
         $scope.displayValidationError = false;
-        $("#loadingModal").modal('show');
+        //$("#loadingModal").modal('show');
         $scope.previousState = $scope.state;
         $scope.state = 'busy';
     }
 
     $scope.handleErrorInDialogs = function (status) {
-        $("#loadingModal").modal('hide');
+        //$("#loadingModal").modal('hide');
         $scope.state = $scope.previousState;
 
         // illegal access
@@ -138,6 +142,28 @@ function contactsController($scope, $http) {
         $scope.contact = {};
     };
 
+    $scope.openCreateDialog = function ($scope,$model,$log) {
+    	
+
+    	    var modalInstance = $modal.open({
+    	      templateUrl: 'createContact.jsp',
+    	      controller: 'contactsController',
+    	     
+    	     /* resolve: {
+    	        items: function () {
+    	          return $scope.items;
+    	        }
+    	      }*/
+    	    });
+
+    	    modalInstance.result.then(function (selectedItem) {
+    	      $scope.selected = selectedItem;
+    	    }, function () {
+    	      $log.info('Modal dismissed at: ' + new Date());
+    	    });
+    	  
+    }
+    
     $scope.createContact = function (newContactForm) {
         if (!newContactForm.$valid) {
             $scope.displayValidationError = true;
@@ -248,6 +274,15 @@ function contactsController($scope, $http) {
         $scope.getContactList();
         $scope.displaySearchMessage = false;
     }
+    
+   
+	  $scope.ok = function () {
+	    $modalInstance.close();
+	  };
+
+	  $scope.cancel = function () {
+	    $modalInstance.dismiss('cancel');
+	  };
 
     $scope.getContactList();
-}
+});
